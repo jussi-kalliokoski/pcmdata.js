@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../lib/pcmdata.js"></script>
+		<script src="kick.js"></script>
+		<script>
+window.onload = function(){
+	wavefile	= PCMData(atob(kick)),
+	newKick		= btoa(PCMData(wavefile));
+	console.log(kick === newKick);
+	console.log(kick.length === newKick.length);
+	for (each in wavefile) console.log(each);
+	audio		= document.createElement('audio');
+	audio.src = 'data:audio/wav;base64,' + newKick;
+	document.body.appendChild(audio);
+	audio.controls = true;
+	console.log(wavefile.data.length);
+}
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
