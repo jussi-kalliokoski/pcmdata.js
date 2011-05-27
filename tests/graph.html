@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../lib/pcmdata.js"></script>
+		<script src="kick.js"></script>
+		<script>
+window.onload = function(){
+	var	wavefile	= PCMData(atob(kick)),
+		newKick		= btoa(PCMData(wavefile)),
+		data		= wavefile.data,
+		ch		= wavefile.channelCount,
+		l		= data.length,
+		chl		= l / ch,
+		c		= document.getElementById('c'),
+		w		= c.width - 1,
+		h		= c.height,
+		span		= h / ch,
+		ctx		= c.getContext('2d'),
+		i, n;
+	/*for (n=0; n<ch; n++){
+		ctx.beginPath();
+		for (i=n; i<l; i+=ch){
+			ctx.lineTo(i / chl * w, (n + (1 + data[i+n]) * 0.5) * span);
+		}
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.moveTo(0, (n + 0.5) * span);
+		ctx.lineTo(w, (n + 0.5) * span);
+		ctx.stroke();
+	}*/
+	ctx.beginPath();
+	for (i=0; i<l; i++){
+		ctx.lineTo(i / l * w, (data[i] + 1) * 0.5 * h);
+	}
+	ctx.stroke();
+	console.log(ch);
+}
+		</script>
+	</head>
+	<body>
+		<canvas id="c" width="800" height="600"></canvas>
+	</body>
+</html>
