@@ -43,25 +43,17 @@
 			floor			= Math.floor,
 			convertFromBinary	= Binary.convertFromBinary,
 			convertToBinary		= Binary.convertToBinary,
-
 			byteCount		= bitCount / 8,
 			bitMask			= pow(2, bitCount),
-			fullMask		= bitMask - 1,
 			semiMask		= bitMask / 2,
-			floatMask		= semiMask - 0.5,
 			intMask			= semiMask - 1,
-//			byteSize		= 255,
-			invBitMask		= 1 / bitMask,
 			invSemiMask		= 1 / semiMask,
-			invFloatMask		= 1 / floatMask,
 			invIntMask		= 1 / intMask;
 
 		return from ?
 			isFloat ?
 				signed ? function(num, bigEndian){
-					var oldnum = num;
 					num = floor(num < 0 ? num * semiMask + bitMask : num * intMask);
-					(num === 2147483647) && console.log('Got ' + oldnum + ', gave ' + num);
 					return convertToBinary(
 						num,
 						byteCount,
@@ -114,6 +106,12 @@
 */
 	Binary.fromFloat32		= Binary(32, y, y, y);
 	Binary.toFloat32		= Binary(32, y, y, n);
+	Binary.fromFloat24		= Binary(24, y, y, y);
+	Binary.toFloat24		= Binary(24, y, y, n);
+	Binary.fromFloat16		= Binary(16, y, y, y);
+	Binary.toFloat16		= Binary(16, y, y, n);
+	Binary.fromFloat8		= Binary(8, y, y, y);
+	Binary.toFloat8			= Binary(8, y, y, n);
 	Binary.fromInt32		= Binary(32, y, n, y);
 	Binary.toInt32			= Binary(32, y, n, n);
 	Binary.fromInt16		= Binary(16, y, n, y);
@@ -150,7 +148,7 @@ var	proto	= Stream.prototype = {
 		},
 		readBuffer:	function(buffer, bitCount, type){
 			var	self		= this,
-				converter	= 'read' + bitCount + type,
+				converter	= 'read' + type + bitCount,
 				byteCount	= bitCount / 8,
 				l		= buffer.length,
 				i		= 0;
