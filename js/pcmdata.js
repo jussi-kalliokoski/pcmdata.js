@@ -20,8 +20,6 @@ PCMData.decode	= function(data){
 		wBlockAlign		= formatChunk.readUint16(),
 		sampleSize		= wBlockAlign / wChannels,
 		dwBitsPerSample		= dwChunkSize1 === 16 ? formatChunk.readUint16() : formatChunk.readUint32(),
-		properReader		= 'readInt' + (sampleSize * 8),
-		multiplier		= 1 / Math.pow(2, sampleSize * 8 - 1),
 		sGroupID,
 		dwChunkSize,
 		sampleCount,
@@ -39,10 +37,8 @@ PCMData.decode	= function(data){
 		if (sGroupID === 'data'){
 			sampleCount		= ~~(dwChunkSize / sampleSize);
 			waveStream		= new Stream(chunkData);
-			samples			= (typeof Float32Array !== 'undefined' ? Float32Array : Array)(sampleCount);
-			for (i=0; i<sampleCount; i++){
-				samples[i] = waveStream[properReader]() * multiplier;
-			}
+			samples			= new (typeof Float32Array !== 'undefined' ? Float32Array : Array)(sampleCount);
+			waveStream.readBuffer(samples, sampleSize * 8, 'Float');
 		} else {
 			dataTypeList.push(chunkData);
 		}
@@ -70,7 +66,7 @@ PCMData.encode	= function(data){
 		length		= samples.length,
 		dLength		= length * bytesPerSample,
 		padding		= Math.pow(2, bitsPerSample - 1) - 1,
-		properWriter	= Binary['fromInt' + bitsPerSample],
+		properWriter	= Binary['fromFloat' + bitsPerSample],
 		chunks		= [],
 		chunk		= '',
 		chunkType,
@@ -89,7 +85,7 @@ PCMData.encode	= function(data){
 		);
 
 		for (i=0; i<length; i++){
-			chunk += properWriter(samples[i] * padding);
+			chunk += properWriter(samples[i]);
 		}
 		chunks.push(
 			'data'				+	// sGroupID		4 bytes		char[4]
