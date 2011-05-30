@@ -148,7 +148,7 @@ var	proto	= Stream.prototype = {
 			self.pointer	+= length;
 			return data.length;
 		},
-		readBuffer(buffer, bitCount, type){
+		readBuffer:	function(buffer, bitCount, type){
 			var	self		= this,
 				converter	= 'read' + bitCount + type,
 				byteCount	= bitCount / 8,
