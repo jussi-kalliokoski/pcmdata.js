@@ -77,7 +77,7 @@ PCMData.decode	= function(data, asyncCallback){
 	return output;
 }
 
-PCMData.encode	= function(data){
+PCMData.encode	= function(data, asyncCallback){
 	var	
 		dWord		= Binary.fromUint32,
 		sWord		= Binary.fromUint16,
@@ -126,10 +126,14 @@ PCMData.encode	= function(data){
 			}
 		}
 		chunks = chunks.join('');
-		return	'RIFF'			+	// sGroupId		4 bytes		char[4]
+		chunks = 'RIFF'			+	// sGroupId		4 bytes		char[4]
 			dWord(chunks.length)	+	// dwFileLength		4 bytes		uint32 / dword
 			'WAVE'			+	// sRiffType		4 bytes		char[4]
 			chunks;
+		asyncCallback && setTimeout(function(){
+			asyncCallback(chunks);
+		}, 1);
+		return chunks;
 }
 
 return PCMData;
