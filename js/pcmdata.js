@@ -5,7 +5,19 @@ function PCMData(data){
 }
 
 PCMData.decodeFrame = function(frame, bitCount, result){
-	return (new Stream(frame)).readBuffer(result, bitCount, 'Float');
+	(new Stream(frame)).readBuffer(result, bitCount, 'Float');
+	return result;
+};
+
+PCMData.encodeFrame = function(frame, bitCount){
+	var	properWriter	= Binary['fromFloat' + bitCount],
+		l		= frame.length,
+		r		= '',
+		i;
+	for (i=0; i<l; i++){
+		r += properWriter(frame[i]);
+	}
+	return r;
 };
 
 PCMData.decode	= function(data, asyncCallback){
@@ -79,7 +91,6 @@ PCMData.encode	= function(data){
 		length		= samples.length,
 		dLength		= length * bytesPerSample,
 		padding		= Math.pow(2, bitsPerSample - 1) - 1,
-		properWriter	= Binary['fromFloat' + bitsPerSample],
 		chunks		= [],
 		chunk		= '',
 		chunkType,
@@ -97,13 +108,10 @@ PCMData.encode	= function(data){
 			sWord(bitsPerSample)			// dwBitsPerSample	2 or 4 bytes	uint32 / dword OR uint16 / ushort
 		);
 
-		for (i=0; i<length; i++){
-			chunk += properWriter(samples[i]);
-		}
 		chunks.push(
 			'data'				+	// sGroupID		4 bytes		char[4]
 			dWord(dLength)			+	// dwChunkSize		4 bytes		uint32 / dword
-			chunk
+			PCMData.encodeFrame(samples, bitsPerSample)
 		);
 		chunkData = data.chunks;
 		if (chunkData){
