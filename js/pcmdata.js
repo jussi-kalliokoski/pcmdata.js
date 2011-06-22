@@ -4,7 +4,11 @@ function PCMData(data){
 	return (typeof data === 'string' ? PCMData.decode : PCMData.encode)(data);
 }
 
-PCMData.decode	= function(data){
+PCMData.decodeFrame = function(frame, bitCount, result){
+	return (new Stream(frame)).readBuffer(result, bitCount, 'Float');
+};
+
+PCMData.decode	= function(data, asyncCallback){
 	var	stream			= new Stream(data),
 		sGroupID1		= stream.read(4),
 		dwFileLength		= stream.readUint32();
@@ -24,32 +28,41 @@ PCMData.decode	= function(data){
 		dwChunkSize,
 		sampleCount,
 		chunkData,
-		waveStream,
 		samples,
 		dataTypeList,
 		i,
-		chunks = {};
-	while(stream.data){
+		chunks	= {},
+		output	= {
+			channelCount:	wChannels,
+			bytesPerSample:	wBlockAlign / wChannels,
+			sampleRate:	dwAvgBytesPerSec / wBlockAlign,
+			chunks:		chunks,
+			data:		samples
+		};
+
+	function readChunk(){
 		sGroupID		= stream.read(4);
 		dwChunkSize		= stream.readUint32();
 		chunkData		= stream.read(dwChunkSize);
 		dataTypeList		= chunks[sGroupID] = chunks[sGroupID] || [];
 		if (sGroupID === 'data'){
 			sampleCount		= ~~(dwChunkSize / sampleSize);
-			waveStream		= new Stream(chunkData);
-			samples			= new (typeof Float32Array !== 'undefined' ? Float32Array : Array)(sampleCount);
-			waveStream.readBuffer(samples, sampleSize * 8, 'Float');
+			samples			= output.data = new (typeof Float32Array !== 'undefined' ? Float32Array : Array)(sampleCount);
+			PCMData.decodeFrame(chunkData, sampleSize * 8, samples);
 		} else {
 			dataTypeList.push(chunkData);
 		}
+		asyncCallback && (stream.data ? setTimeout(readChunk, 1) : asyncCallback(output));
 	}
-	return {
-		channelCount:	wChannels,
-		bytesPerSample:	wBlockAlign / wChannels,
-		sampleRate:	dwAvgBytesPerSec / wBlockAlign,
-		chunks:		chunks,
-		data:		samples
-	};
+
+	if (asyncCallback){
+		stream.data ? readChunk() : asyncCallback(output);
+	} else {
+		while(stream.data){
+			readChunk();
+		}
+	}
+	return output;
 }
 
 PCMData.encode	= function(data){
