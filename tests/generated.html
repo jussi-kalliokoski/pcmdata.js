@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../lib/pcmdata.js"></script>
+		<script>
+function generateWave(buffer, channelCount, sampleRate, bytesPerSample){
+	buffer = PCMData.encode({
+		data:		buffer,
+		sampleRate:	sampleRate,
+		channelCount:	channelCount,
+		bytesPerSample:	bytesPerSample
+	});
+	var 	audio		= document.createElement('audio'),
+		bb, url;
+	try {
+		bb		= new (window.MozBlobBuilder || window.WebKitBlobBuilder);
+		bb.append(buffer);
+		url		= window.URL.createObjectURL(bb.getBlob());
+		audio.src	= url;
+		audio.addEventListener('ended', function onended(){
+			window.URL.revokeObjectURL(url);
+			audio.removeEventListener('ended', onended);
+		}, true);
+	} catch (e){
+		url		= 'data:audio/wav;base64,' + btoa(buffer);
+		audio.src	= url;
+	}
+	return audio;
+}
+
+function playNote(frequency, bytesPerSample){
+	var	phase		= 0,
+		PI		= Math.PI,
+		sampleRate	= 44100,
+		buffer		= new Float32Array(sampleRate * 4),
+		i;
+	for (i=0; i<buffer.length; i+=2){
+		phase = (phase + frequency / sampleRate) % 1;
+		buffer[i] = buffer[i+1] = Math.sin(phase * PI * 2) * 0.5;
+	}
+	var wave = generateWave(buffer, 2, sampleRate, bytesPerSample);
+	wave.play();
+}
+		</script>
+	</head>
+	<body>
+		<label for="frequency">Frequency:</label><br/>
+		<input id="frequency" value="440" /><br/>
+		<label for="bitCount">Bit Count:</label><br/>
+		<input id="bitCount" value="16" /><br/>
+		<button onclick="playNote(Number(document.getElementById('frequency').value), Number(document.getElementById('bitCount').value) / 8)">Play</button>
+	</body>
+</html>
