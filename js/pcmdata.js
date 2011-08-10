@@ -12,13 +12,13 @@ PCMData.decodeFrame = function(frame, bitCount, result){
 			result[bitCount] = (buffer[bitCount] - 127.5) * 127.5;
 		}
 	} else {
-		(new Stream(frame)).readBuffer(result, bitCount, 'Float');
+		(new Stream(frame)).readBuffer(result, bitCount, 'Q');
 	}
 	return result;
 };
 
 PCMData.encodeFrame = function(frame, bitCount){
-	var	properWriter	= Binary[(bitCount === 8 ? 'fromUint' : 'fromFloat') + bitCount],
+	var	properWriter	= Binary[(bitCount === 8 ? 'fromUint' : 'fromQ') + bitCount],
 		l		= frame.length,
 		r		= '',
 		i;
@@ -152,4 +152,4 @@ PCMData.encode	= function(data, asyncCallback){
 
 return PCMData;
 
-}(Binary, Stream));
+}(this.Binary, this.Stream));
