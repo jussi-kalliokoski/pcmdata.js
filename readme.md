@@ -1,10 +1,8 @@
-pcmdata.js
-==========
+# pcmdata.js
 
 Uses binary.js and stream.js to read / write wav files quickly.
 
-Usage
------
+## Usage
 
 ```javascript
 
@@ -27,4 +25,6 @@ var	waveData	= PCMData.encode({
 
 ```
 
-MIT License
+## License
+
+BSD License
