@@ -2,6 +2,10 @@
 
 Uses binary.js and stream.js to read / write wav files quickly.
 
+## WARNING
+
+This library is deprecated. Synchronous string-based decoding is not a good idea, there are better options available nowadays. Take a look at [aurora.js](https://github.com/ofmlabs/aurora.js).
+
 ## Usage
 
 ```javascript
